@@ -1,0 +1,8 @@
+[package]
+name = "tictactoe"
+version = "0.1.0"
+authors = ["Rolf Sievers <rolf.sievers@posteo.de>"]
+
+[dependencies]
+ggez = "0.4"
+rand = "0.5"
