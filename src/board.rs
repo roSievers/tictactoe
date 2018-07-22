@@ -114,6 +114,10 @@ impl Global {
         }
         result
     }
+
+    pub fn at(&mut self, global_coord: coord::Global) -> &mut Token {
+        &mut self[global_coord.get_region()][global_coord.get_local()]
+    }
 }
 
 impl Index<coord::Local> for Global {
@@ -127,5 +131,19 @@ impl Index<coord::Local> for Global {
 impl IndexMut<coord::Local> for Global {
     fn index_mut(&mut self, region_coord: coord::Local) -> &mut Self::Output {
         &mut self.entries[ region_coord.index() ]
+    }
+}
+
+impl Index<coord::Global> for Global {
+    type Output = Token;
+
+    fn index(&self, global_coord: coord::Global) -> &Self::Output {
+        &self[global_coord.get_region()][global_coord.get_local()]
+    }
+}
+
+impl IndexMut<coord::Global> for Global {
+    fn index_mut(&mut self, global_coord: coord::Global) -> &mut Self::Output {
+        &mut self[global_coord.get_region()][global_coord.get_local()]
     }
 }
