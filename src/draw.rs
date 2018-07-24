@@ -12,7 +12,6 @@ pub fn board(ctx: &mut Context, state: &MainState) -> GameResult<()> {
     let gray : Color = Color::from_rgb(50, 50, 50);
 
     graphics::set_background_color(ctx, white);
-    graphics::set_color(ctx, gray)?;
 
     let measures = Measure::default();
 
@@ -30,10 +29,13 @@ pub fn board(ctx: &mut Context, state: &MainState) -> GameResult<()> {
         board::Player::Circle => circle(ctx, &m, info_offset, measures.inner.get_block_size_without_padding())?
     };
 
+    graphics::set_color(ctx, gray)?;
     hashtag(ctx, state.board_offset, &measures.outer)?;
 
     for region in coord::Local::iter() {
         let region_offset = state.board_offset + measures.outer.get_offset_with_padding(region);
+
+        graphics::set_color(ctx, determine_color(state.active_region, region))?;
 
         hashtag(ctx, region_offset, &measures.inner)?;
         for local in coord::Local::iter() {
@@ -50,6 +52,17 @@ pub fn board(ctx: &mut Context, state: &MainState) -> GameResult<()> {
     }
 
     Ok(())
+}
+
+fn determine_color(active_region: Option<coord::Local>, region: coord::Local) -> Color {
+    let light_gray : Color = Color::from_rgb(150, 150, 150);
+    let gray : Color = Color::from_rgb(50, 50, 50);
+
+    if active_region == None || active_region == Some(region) {
+        gray
+    } else {
+        light_gray
+    }
 }
 
 fn hashtag(ctx: &mut Context, offset : Vector2, hashtag_measure: &HashtagMeasure) -> GameResult<()> {
