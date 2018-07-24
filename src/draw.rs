@@ -1,5 +1,5 @@
 use ggez::*;
-use ggez::graphics::{Point2, DrawMode, Mesh, Drawable, Vector2};
+use ggez::graphics::{Point2, DrawMode, Mesh, Drawable, Vector2, Color};
 
 use board;
 use coord;
@@ -7,6 +7,12 @@ use measure::*;
 use ::MainState;
 
 pub fn board(ctx: &mut Context, state: &MainState) -> GameResult<()> {
+
+    let white : Color = Color::from_rgb(255, 255, 255);
+    let gray : Color = Color::from_rgb(50, 50, 50);
+
+    graphics::set_background_color(ctx, white);
+    graphics::set_color(ctx, gray)?;
 
     let measures = Measure::default();
 

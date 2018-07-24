@@ -51,7 +51,6 @@ impl event::EventHandler for MainState {
 
     fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32) {
         use measure::MousePosition;
-        use board::Token;
         let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.board_offset;
         let measure = measure::Measure::default();
         let click = measure.resolve_mouse_position(rel_mouse_position);
