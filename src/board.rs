@@ -13,6 +13,12 @@ pub enum Token {
 }
 
 #[derive(Clone, Copy)]
+pub enum Player {
+    Circle,
+    Cross
+}
+
+#[derive(Clone, Copy)]
 pub enum Ownership {
     Undecided,
     Circle,
@@ -145,5 +151,23 @@ impl Index<coord::Global> for Global {
 impl IndexMut<coord::Global> for Global {
     fn index_mut(&mut self, global_coord: coord::Global) -> &mut Self::Output {
         &mut self[global_coord.get_region()][global_coord.get_local()]
+    }
+}
+
+impl From<Player> for Token {
+    fn from(player: Player) -> Self {
+        match player {
+            Player::Circle => Token::Circle,
+            Player::Cross => Token::Cross
+        }
+    }
+}
+
+impl Player {
+    pub fn other(self) -> Self {
+        match self {
+            Player::Circle => Player::Cross,
+            Player::Cross => Player::Circle
+        }
     }
 }

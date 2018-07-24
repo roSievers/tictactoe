@@ -17,6 +17,13 @@ pub fn board(ctx: &mut Context, state: &MainState) -> GameResult<()> {
         0.5 * measures.inner.get_block_size_without_padding(),
         0.2)?;
 
+    // Draw the current player in the top left corner
+    let info_offset = Vector2::new(10.0, 10.0);
+    match state.current_player {
+        board::Player::Cross => cross(ctx, info_offset, measures.inner.get_block_size_without_padding(), measures.inner.line_width)?,
+        board::Player::Circle => circle(ctx, &m, info_offset, measures.inner.get_block_size_without_padding())?
+    };
+
     hashtag(ctx, state.board_offset, &measures.outer)?;
 
     for region in coord::Local::iter() {

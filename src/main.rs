@@ -16,14 +16,21 @@ mod measure;
 
 pub struct MainState {
     pub board_state : board::Global,
+    pub current_player : board::Player,
     pub board_offset: Vector2,
 }
 
 impl MainState {
     fn new(_ctx: &mut Context) -> GameResult<MainState> {
         let board_state = board::Global::new();
-        let s = MainState { board_state, board_offset : Vector2::new(100.0, 30.0) };
+        let current_player = board::Player::Cross;
+        let s = MainState { board_state, current_player, board_offset : Vector2::new(100.0, 30.0) };
         Ok(s)
+    }
+
+    fn on_place_token(&mut self, position: coord::Global) {
+        self.board_state[position] = self.current_player.into();
+        self.current_player = self.current_player.other();
     }
 }
 
@@ -52,7 +59,7 @@ impl event::EventHandler for MainState {
 
         match click {
             MousePosition::Local(coord) => {
-                self.board_state[coord] = Token::Cross;
+                self.on_place_token(coord);
             },
             _ => ()
         }
