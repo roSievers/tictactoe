@@ -18,7 +18,7 @@ pub enum Player {
     Cross
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Ownership {
     Undecided,
     Circle,
@@ -29,7 +29,7 @@ pub enum Ownership {
 #[derive(Clone, Debug)]
 pub struct Local {
     entries : [Token; 9],
-    total : Ownership
+    pub total : Ownership
 }
 
 #[derive(Clone, Debug)]
@@ -88,6 +88,46 @@ impl Local {
         }
         result
     }
+
+    fn place_token(&mut self, position: coord::Local, token: Token) {
+        self[position] = token;
+
+        // Check win conditions and set total Ownership
+        // Check horizontal
+        let row = 3 * position.get_y() as usize;
+        let row_is_won = self.entries[row] == token && 
+                         self.entries[row + 1] == token &&
+                         self.entries[row + 2] == token;
+        // Check vertical
+        let col = position.get_x() as usize;
+        let col_is_won = self.entries[col] == token && 
+                         self.entries[3 + col] == token &&
+                         self.entries[6 + col] == token;
+        // Check diagonals
+        let down_diag_is_won = self.entries[0] == token && 
+                               self.entries[4] == token &&
+                               self.entries[8] == token;
+        let up_diag_is_won = self.entries[0] == token && 
+                               self.entries[4] == token &&
+                               self.entries[8] == token;
+
+        // Set total ownership
+        if row_is_won || col_is_won || down_diag_is_won || up_diag_is_won {
+            self.total = token.into();
+        }
+        else
+        {
+            // Handle stalemate
+            if coord::Local::iter().all( | pos | self[pos] != Token::Clear ) {
+                self.total = Ownership::Draw
+            } else {
+                self.total = Ownership::Undecided
+            }
+        }
+
+    }
+
+
 }
 
 impl Index<coord::Local> for Local {
@@ -124,6 +164,11 @@ impl Global {
     pub fn at(&mut self, global_coord: coord::Global) -> &mut Token {
         &mut self[global_coord.get_region()][global_coord.get_local()]
     }
+
+    pub fn place_token(&mut self, position: coord::Global, token: Token) {
+        let region : &mut Local = &mut self[position.get_region()];
+        region.place_token(position.get_local(), token);
+    }
 }
 
 impl Index<coord::Local> for Global {
@@ -159,6 +204,16 @@ impl From<Player> for Token {
         match player {
             Player::Circle => Token::Circle,
             Player::Cross => Token::Cross
+        }
+    }
+}
+
+impl From<Token> for Ownership {
+    fn from(player: Token) -> Self {
+        match player {
+            Token::Circle => Ownership::Circle,
+            Token::Cross => Ownership::Cross,
+            Token::Clear => Ownership::Undecided
         }
     }
 }

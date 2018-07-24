@@ -22,6 +22,13 @@ pub fn board(ctx: &mut Context, state: &MainState) -> GameResult<()> {
         0.5 * measures.inner.get_block_size_without_padding(),
         0.2)?;
 
+    let m2 = Mesh::new_circle(
+        ctx,
+        DrawMode::Line(measures.outer.line_width),
+        Point2::origin(),
+        0.5 * measures.outer.get_block_size_without_padding(),
+        0.2)?;
+
     // Draw the current player in the top left corner
     let info_offset = Vector2::new(10.0, 10.0);
     match state.current_player {
@@ -37,18 +44,33 @@ pub fn board(ctx: &mut Context, state: &MainState) -> GameResult<()> {
 
         graphics::set_color(ctx, determine_color(state.active_region, region))?;
 
-        hashtag(ctx, region_offset, &measures.inner)?;
-        for local in coord::Local::iter() {
-            let token_offset = region_offset + measures.inner.get_offset_with_padding(local);
+        let board_region : &board::Local = &state.board_state[region];
+        match board_region.total {
+            board::Ownership::Undecided => {
+                hashtag(ctx, region_offset, &measures.inner)?;
+                for local in coord::Local::iter() {
+                    let token_offset = region_offset + measures.inner.get_offset_with_padding(local);
 
-            let token = state.board_state[region][local];
+                    let token = state.board_state[region][local];
 
-            match token {
-                board::Token::Clear => (),
-                board::Token::Cross => cross(ctx, token_offset, measures.inner.get_block_size_without_padding(), measures.inner.line_width)?,
-                board::Token::Circle => circle(ctx, &m, token_offset, measures.inner.get_block_size_without_padding())?
-            };
+                    match token {
+                        board::Token::Clear => (),
+                        board::Token::Cross => cross(ctx, token_offset, measures.inner.get_block_size_without_padding(), measures.inner.line_width)?,
+                        board::Token::Circle => circle(ctx, &m, token_offset, measures.inner.get_block_size_without_padding())?
+                    };
+                }
+            },
+            board::Ownership::Cross => {
+                cross(ctx, region_offset, measures.outer.get_block_size_without_padding(), measures.outer.line_width)?;
+            },
+            board::Ownership::Circle => {
+                circle(ctx, &m2, region_offset, measures.outer.get_block_size_without_padding())?;
+            },
+            _ => {
+                // TODO: Insert some drawing, maybe a squiggle?
+            }
         }
+
     }
 
     Ok(())

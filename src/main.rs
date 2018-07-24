@@ -35,7 +35,10 @@ impl MainState {
     }
 
     pub fn can_place_in_region(&mut self, region: coord::Local) -> bool {
-        self.active_region == None || self.active_region == Some(region)
+        let is_active = self.active_region == None || self.active_region == Some(region);
+        let still_has_space = self.board_state[region].total == board::Ownership::Undecided;
+
+        is_active && still_has_space
     }
 
     fn on_try_place_token(&mut self, position: coord::Global) {
@@ -48,9 +51,14 @@ impl MainState {
     }
 
     fn on_place_token(&mut self, position: coord::Global) {
-        self.board_state[position] = self.current_player.into();
+        self.board_state.place_token(position, self.current_player.into());
         self.current_player = self.current_player.other();
-        self.active_region = Some(position.get_local());
+        if self.board_state[position.get_local()].total == board::Ownership::Undecided {
+            self.active_region = Some(position.get_local());
+        } else {
+            self.active_region = None;
+        }
+
     }
 }
 
