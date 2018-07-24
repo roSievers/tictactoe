@@ -5,7 +5,7 @@ use std::ops::{Index, IndexMut};
 use rand::random;
 
 // TODO: Token<T> { Clear(T), .. }
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub enum Token {
     Clear,
     Circle,

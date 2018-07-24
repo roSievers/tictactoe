@@ -34,6 +34,19 @@ impl MainState {
         Ok(s)
     }
 
+    pub fn can_place_in_region(&mut self, region: coord::Local) -> bool {
+        self.active_region == None || self.active_region == Some(region)
+    }
+
+    fn on_try_place_token(&mut self, position: coord::Global) {
+        let correct_region = self.can_place_in_region(position.get_region());
+        let position_is_empty = self.board_state[position] == board::Token::Clear;
+
+        if correct_region && position_is_empty {
+            self.on_place_token(position);
+        }
+    }
+
     fn on_place_token(&mut self, position: coord::Global) {
         self.board_state[position] = self.current_player.into();
         self.current_player = self.current_player.other();
@@ -61,11 +74,10 @@ impl event::EventHandler for MainState {
         let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.board_offset;
         let measure = measure::Measure::default();
         let click = measure.resolve_mouse_position(rel_mouse_position);
-        println!("MouseUp({}, {}) -> {:?}", _x, _y, click);
 
         match click {
             MousePosition::Local(coord) => {
-                self.on_place_token(coord);
+                self.on_try_place_token(coord);
             },
             _ => ()
         }
