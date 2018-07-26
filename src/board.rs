@@ -107,9 +107,9 @@ impl Local {
         let down_diag_is_won = self.entries[0] == token && 
                                self.entries[4] == token &&
                                self.entries[8] == token;
-        let up_diag_is_won = self.entries[0] == token && 
+        let up_diag_is_won = self.entries[2] == token && 
                                self.entries[4] == token &&
-                               self.entries[8] == token;
+                               self.entries[5] == token;
 
         // Set total ownership
         if row_is_won || col_is_won || down_diag_is_won || up_diag_is_won {
