@@ -15,7 +15,7 @@ pub struct HashtagMeasure {
     pub inner_padding: f32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MousePosition {
     Local(coord::Global),
     Region(coord::Local),

@@ -14,22 +14,33 @@ mod coord;
 mod board;
 mod measure;
 
+use measure::MousePosition;
+use draw::GraphicsCache;
+
 pub struct MainState {
     pub board_state : board::Global,
     pub current_player : board::Player,
     pub active_region : Option<coord::Local>,
-    pub board_offset: Vector2,
+    pub active_hover : MousePosition,
+    pub mouse_down_position : MousePosition,
+    pub gfx : GraphicsCache,
 }
 
 impl MainState {
     fn new(_ctx: &mut Context) -> GameResult<MainState> {
         let board_state = board::Global::new();
         let current_player = board::Player::Cross;
+        let mut gfx = GraphicsCache::new();
+        gfx.grid_offset = Vector2::new(100.0, 30.0);
         let s = MainState {
             board_state, 
             current_player, 
             active_region : None, 
-            board_offset : Vector2::new(100.0, 30.0)
+            active_hover : MousePosition::Outside, 
+            mouse_down_position : MousePosition::Outside, 
+            gfx,
+            // board_offset : Vector2::new(100.0, 30.0)
+
         };
         Ok(s)
     }
@@ -70,18 +81,31 @@ impl event::EventHandler for MainState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx);
 
-        draw::board(ctx, &self)?;
+        draw::board(ctx, self)?;
 
         graphics::present(ctx);
 
         Ok(())
     }
 
+    fn mouse_button_down_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32 ) {
+        use ggez::event::MouseButton;
+        if _button == MouseButton::Left {
+            // Get click position in game terms and store it for the release
+            let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.gfx.grid_offset;
+            self.mouse_down_position = self.gfx.get_measures().resolve_mouse_position(rel_mouse_position);
+        }
+    }
+
     fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32) {
-        use measure::MousePosition;
-        let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.board_offset;
-        let measure = measure::Measure::default();
-        let click = measure.resolve_mouse_position(rel_mouse_position);
+        let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.gfx.grid_offset;
+        let click = self.gfx.get_measures().resolve_mouse_position(rel_mouse_position);
+
+        if click != self.mouse_down_position {
+            // Click position tracking indicates that the user wants to cancel the operation.
+            self.mouse_down_position = MousePosition::Outside;
+            return;
+        }
 
         match click {
             MousePosition::Local(coord) => {
@@ -89,7 +113,8 @@ impl event::EventHandler for MainState {
             },
             _ => ()
         }
-        
+
+        self.mouse_down_position = MousePosition::Outside;
     }
 }
 
