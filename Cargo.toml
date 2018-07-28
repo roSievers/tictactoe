@@ -8,3 +8,4 @@ ggez = "0.4"
 rand = "0.5"
 quickcheck = "0.6"
 quickcheck_macros = "0.6"
+clippy = {version = "*", optional = true}

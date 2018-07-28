@@ -1,6 +1,8 @@
 #![feature(type_ascription)]
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
+#![warn(clippy)]
+#![allow(cast_lossless)]
 
 extern crate ggez;
 extern crate quickcheck;
@@ -118,11 +120,8 @@ impl event::EventHandler for MainState {
             return;
         }
 
-        match click {
-            MousePosition::Local(coord) => {
-                self.on_try_place_token(coord);
-            }
-            _ => (),
+        if let MousePosition::Local(coord) = click {
+            self.on_try_place_token(coord);
         }
 
         self.mouse_down_position = MousePosition::Outside;

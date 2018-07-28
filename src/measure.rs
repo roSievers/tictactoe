@@ -71,6 +71,7 @@ impl HashtagMeasure {
 }
 
 impl Measure {
+    #[allow(dead_code)] // Used by the tests
     fn from_inner_measures(
         small_block: f32,
         small_line: f32,

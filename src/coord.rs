@@ -46,7 +46,7 @@ impl Local {
     }
 
     pub fn iter() -> impl Iterator<Item = Self> {
-        (0..9).map(|i: u8| Local(i))
+        (0..9).map(Local)
     }
 }
 

@@ -70,6 +70,12 @@ impl From<Ownership> for Token {
     }
 }
 
+impl Default for Local {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Local {
     pub fn new() -> Self {
         let entries = [Token::Clear; 9];
@@ -80,9 +86,10 @@ impl Local {
     pub fn random() -> Self {
         let mut result = Self::new();
         for i in 0..9 {
-            let token = match random(): bool {
-                true => Token::Cross,
-                false => Token::Circle,
+            let token = if random() {
+                Token::Cross
+            } else {
+                Token::Circle
             };
             result.entries[i] = token;
         }
@@ -112,13 +119,11 @@ impl Local {
         // Set total ownership
         if row_is_won || col_is_won || down_diag_is_won || up_diag_is_won {
             self.total = token.into();
-        } else {
+        } else if coord::Local::iter().all(|pos| self[pos] != Token::Clear) {
             // Handle stalemate
-            if coord::Local::iter().all(|pos| self[pos] != Token::Clear) {
-                self.total = Ownership::Draw
-            } else {
-                self.total = Ownership::Undecided
-            }
+            self.total = Ownership::Draw
+        } else {
+            self.total = Ownership::Undecided
         }
     }
 }
@@ -134,6 +139,12 @@ impl Index<coord::Local> for Local {
 impl IndexMut<coord::Local> for Local {
     fn index_mut(&mut self, local_coord: coord::Local) -> &mut Self::Output {
         &mut self.entries[local_coord.index()]
+    }
+}
+
+impl Default for Global {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

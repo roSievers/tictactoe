@@ -96,15 +96,14 @@ pub fn board(ctx: &mut Context, state: &mut MainState) -> GameResult<()> {
                         region_offset + state.gfx.measures.inner.get_offset_with_padding(local);
 
                     let mut token = state.board_state[region][local];
-                    let mut is_ghost = false;
+
+                    let is_ghost = token == board::Token::Clear
+                        && state.mouse_down_position
+                            == MousePosition::Local(coord::Global::new(region, local));
 
                     // If there is no token and the mouse is held down, we show a ghost
-                    if token == board::Token::Clear
-                        && state.mouse_down_position
-                            == MousePosition::Local(coord::Global::new(region, local))
-                    {
+                    if is_ghost {
                         token = state.current_player.into();
-                        is_ghost = true;
                     }
 
                     graphics::set_color(
@@ -243,5 +242,5 @@ fn circle(ctx: &mut Context, mesh: &Mesh, offset: Vector2, block_size: f32) -> G
 }
 
 fn line(ctx: &mut Context, start: Point2, stop: Point2, width: f32) -> GameResult<()> {
-    graphics::line(ctx, &vec![start, stop], width)
+    graphics::line(ctx, &[start, stop], width)
 }
