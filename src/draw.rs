@@ -6,7 +6,7 @@ use coord;
 use measure::*;
 use ::MainState;
 
-// A type to cache meshes and other information required for rendering.
+/// A type to cache meshes and other information required for rendering.
 pub struct GraphicsCache {
     pub measures : Measure,
     small_circle : Mesh,

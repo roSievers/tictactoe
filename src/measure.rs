@@ -106,7 +106,6 @@ impl Measure {
 #[cfg(test)]
 mod tests {
     use quickcheck::{Arbitrary, Gen};
-    use coord;
     use measure::*;
 
     impl Arbitrary for Measure {

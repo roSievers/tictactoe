@@ -7,7 +7,7 @@ extern crate rand;
 extern crate quickcheck;
 use ggez::event::MouseButton;
 use ggez::*;
-use ggez::graphics::{Vector2, Point2};
+use ggez::graphics::Point2;
 
 mod draw;
 mod coord;
@@ -30,7 +30,7 @@ impl MainState {
     fn new(ctx: &mut Context) -> GameResult<MainState> {
         let board_state = board::Global::new();
         let current_player = board::Player::Cross;
-        let mut gfx = GraphicsCache::new(ctx)?;
+        let gfx = GraphicsCache::new(ctx)?;
         let s = MainState {
             board_state, 
             current_player, 
@@ -115,11 +115,22 @@ impl event::EventHandler for MainState {
 
         self.mouse_down_position = MousePosition::Outside;
     }
+
+    fn resize_event(&mut self, ctx: &mut Context, width: u32, height: u32) {
+        match GraphicsCache::new(ctx) {
+            Ok(gfx) => self.gfx = gfx,
+            Err(e) => panic!("Error while resizing: {:?}", e),
+        }
+
+        graphics::set_screen_coordinates(ctx, ggez::graphics::Rect::new(0.0, 0.0, width as f32, height as f32)).unwrap();
+}
 }
 
 pub fn main() {
-    let c = conf::Conf::new();
+    let mut c = conf::Conf::new();
+    c.window_setup.resizable = true;
     let ctx = &mut Context::load_from_conf("super_simple", "ggez", c).unwrap();
     let state = &mut MainState::new(ctx).unwrap();
+
     event::run(ctx, state).unwrap();
 }
