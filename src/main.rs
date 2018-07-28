@@ -27,11 +27,10 @@ pub struct MainState {
 }
 
 impl MainState {
-    fn new(_ctx: &mut Context) -> GameResult<MainState> {
+    fn new(ctx: &mut Context) -> GameResult<MainState> {
         let board_state = board::Global::new();
         let current_player = board::Player::Cross;
-        let mut gfx = GraphicsCache::new();
-        gfx.grid_offset = Vector2::new(100.0, 30.0);
+        let mut gfx = GraphicsCache::new(ctx)?;
         let s = MainState {
             board_state, 
             current_player, 
@@ -39,8 +38,6 @@ impl MainState {
             active_hover : MousePosition::Outside, 
             mouse_down_position : MousePosition::Outside, 
             gfx,
-            // board_offset : Vector2::new(100.0, 30.0)
-
         };
         Ok(s)
     }
@@ -93,7 +90,7 @@ impl event::EventHandler for MainState {
         if _button == MouseButton::Left {
             // Get click position in game terms and store it for the release
             let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.gfx.grid_offset;
-            self.mouse_down_position = self.gfx.get_measures().resolve_mouse_position(rel_mouse_position);
+            self.mouse_down_position = self.gfx.measures.resolve_mouse_position(rel_mouse_position);
         } else if _button == MouseButton::Right {
             self.mouse_down_position = MousePosition::Outside;
         }
@@ -101,7 +98,7 @@ impl event::EventHandler for MainState {
 
     fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32) {
         let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.gfx.grid_offset;
-        let click = self.gfx.get_measures().resolve_mouse_position(rel_mouse_position);
+        let click = self.gfx.measures.resolve_mouse_position(rel_mouse_position);
 
         if click != self.mouse_down_position {
             // Click position tracking indicates that the user wants to cancel the operation.

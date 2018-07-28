@@ -29,6 +29,14 @@ impl HashtagMeasure {
         HashtagMeasure { block_size, line_width, total_size, inner_padding }
     }
 
+    pub fn from_size(total_size: f32, line_proportion: f32) -> Self {
+        assert!(line_proportion < 1.0 / 8.0 );
+        let line_width = line_proportion * total_size;
+        let inner_padding = line_width;
+        let block_size = (total_size - 2.0 * line_width) / 3.0;
+        HashtagMeasure { block_size, line_width, total_size, inner_padding }
+    }
+
     pub fn get_cell_rect(&self, coord: coord::Local) -> Rect {
         let step_size = self.block_size + self.line_width;
         Rect::new(
@@ -62,6 +70,12 @@ impl Measure {
         Measure { inner, outer }
     }
 
+    pub fn from_size(total_size: f32, outer_line_proportion: f32, inner_line_proportion: f32) -> Self {
+        let outer = HashtagMeasure::from_size(total_size, outer_line_proportion);
+        let inner = HashtagMeasure::from_size(outer.get_block_size_without_padding(), inner_line_proportion);
+        Measure { inner, outer }
+    }
+
     pub fn resolve_mouse_position(&self, pos: Point2) -> MousePosition {
         // Is the Point even inside the playing area?
         if !Rect::new(0.0, 0.0, self.outer.total_size, self.outer.total_size).contains(pos) {
@@ -86,12 +100,6 @@ impl Measure {
 
         // Inside Rectangle, but not inside any Region => Mouse is on Hashtag.
         MousePosition::BigHashtag
-    }
-}
-
-impl Default for Measure {
-    fn default() -> Self {
-        Measure::from_inner_measures(50.0, 5.0, 5.0, 10.0, 10.0)
     }
 }
 
