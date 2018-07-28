@@ -45,25 +45,25 @@ impl Local {
         Vector2::new(self.get_x() as f32, self.get_y() as f32)
     }
 
-    pub fn iter() -> impl Iterator<Item = Self>  {
-        (0..9).map( |i : u8| Local(i))
+    pub fn iter() -> impl Iterator<Item = Self> {
+        (0..9).map(|i: u8| Local(i))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use quickcheck::{Arbitrary, Gen};
     use coord::*;
+    use quickcheck::{Arbitrary, Gen};
 
     impl Arbitrary for Local {
         fn arbitrary<G: Gen>(g: &mut G) -> Self {
-            Local(g.gen() : u8 % 9)
+            Local(g.gen(): u8 % 9)
         }
     }
 
     impl Arbitrary for Global {
         fn arbitrary<G: Gen>(g: &mut G) -> Self {
-            Global(g.gen() : u8 % 81)
+            Global(g.gen(): u8 % 81)
         }
     }
 

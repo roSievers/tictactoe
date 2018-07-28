@@ -1,21 +1,21 @@
 use coord;
-use std::fmt;
-use std::fmt::{Debug};
-use std::ops::{Index, IndexMut};
 use rand::random;
+use std::fmt;
+use std::fmt::Debug;
+use std::ops::{Index, IndexMut};
 
 // TODO: Token<T> { Clear(T), .. }
 #[derive(Clone, Copy, Eq, PartialEq)]
 pub enum Token {
     Clear,
     Circle,
-    Cross
+    Cross,
 }
 
 #[derive(Clone, Copy)]
 pub enum Player {
     Circle,
-    Cross
+    Cross,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -23,19 +23,19 @@ pub enum Ownership {
     Undecided,
     Circle,
     Cross,
-    Draw
+    Draw,
 }
 
 #[derive(Clone, Debug)]
 pub struct Local {
-    entries : [Token; 9],
-    pub total : Ownership
+    entries: [Token; 9],
+    pub total: Ownership,
 }
 
 #[derive(Clone, Debug)]
 pub struct Global {
-    entries : [Local; 9],
-    total : Ownership
+    entries: [Local; 9],
+    total: Ownership,
 }
 
 impl Debug for Token {
@@ -43,7 +43,7 @@ impl Debug for Token {
         match self {
             Token::Clear => write!(f, " "),
             Token::Circle => write!(f, "O"),
-            Token::Cross => write!(f, "X")
+            Token::Cross => write!(f, "X"),
         }
     }
 }
@@ -54,7 +54,7 @@ impl Debug for Ownership {
             Ownership::Undecided => write!(f, " "),
             Ownership::Circle => write!(f, "O"),
             Ownership::Cross => write!(f, "X"),
-            Ownership::Draw => write!(f, "-")
+            Ownership::Draw => write!(f, "-"),
         }
     }
 }
@@ -65,7 +65,7 @@ impl From<Ownership> for Token {
             Ownership::Undecided => Token::Clear,
             Ownership::Circle => Token::Circle,
             Ownership::Cross => Token::Cross,
-            Ownership::Draw => Token::Clear
+            Ownership::Draw => Token::Clear,
         }
     }
 }
@@ -80,9 +80,9 @@ impl Local {
     pub fn random() -> Self {
         let mut result = Self::new();
         for i in 0..9 {
-            let token = match random() : bool {
+            let token = match random(): bool {
                 true => Token::Cross,
-                false => Token::Circle
+                false => Token::Circle,
             };
             result.entries[i] = token;
         }
@@ -95,60 +95,61 @@ impl Local {
         // Check win conditions and set total Ownership
         // Check horizontal
         let row = 3 * position.get_y() as usize;
-        let row_is_won = self.entries[row] == token && 
-                         self.entries[row + 1] == token &&
-                         self.entries[row + 2] == token;
+        let row_is_won = self.entries[row] == token
+            && self.entries[row + 1] == token
+            && self.entries[row + 2] == token;
         // Check vertical
         let col = position.get_x() as usize;
-        let col_is_won = self.entries[col] == token && 
-                         self.entries[3 + col] == token &&
-                         self.entries[6 + col] == token;
+        let col_is_won = self.entries[col] == token
+            && self.entries[3 + col] == token
+            && self.entries[6 + col] == token;
         // Check diagonals
-        let down_diag_is_won = self.entries[0] == token && 
-                               self.entries[4] == token &&
-                               self.entries[8] == token;
-        let up_diag_is_won = self.entries[2] == token && 
-                               self.entries[4] == token &&
-                               self.entries[5] == token;
+        let down_diag_is_won =
+            self.entries[0] == token && self.entries[4] == token && self.entries[8] == token;
+        let up_diag_is_won =
+            self.entries[2] == token && self.entries[4] == token && self.entries[5] == token;
 
         // Set total ownership
         if row_is_won || col_is_won || down_diag_is_won || up_diag_is_won {
             self.total = token.into();
-        }
-        else
-        {
+        } else {
             // Handle stalemate
-            if coord::Local::iter().all( | pos | self[pos] != Token::Clear ) {
+            if coord::Local::iter().all(|pos| self[pos] != Token::Clear) {
                 self.total = Ownership::Draw
             } else {
                 self.total = Ownership::Undecided
             }
         }
-
     }
-
-
 }
 
 impl Index<coord::Local> for Local {
     type Output = Token;
 
     fn index(&self, local_coord: coord::Local) -> &Self::Output {
-        &self.entries[ local_coord.index() ]
+        &self.entries[local_coord.index()]
     }
 }
 
 impl IndexMut<coord::Local> for Local {
     fn index_mut(&mut self, local_coord: coord::Local) -> &mut Self::Output {
-        &mut self.entries[ local_coord.index() ]
+        &mut self.entries[local_coord.index()]
     }
 }
 
 impl Global {
     pub fn new() -> Self {
-        let entries = [ Local::new(), Local::new(), Local::new(), Local::new(),
-                        Local::new(), Local::new(), Local::new(), Local::new(),
-                        Local::new()];
+        let entries = [
+            Local::new(),
+            Local::new(),
+            Local::new(),
+            Local::new(),
+            Local::new(),
+            Local::new(),
+            Local::new(),
+            Local::new(),
+            Local::new(),
+        ];
         let total = Ownership::Undecided;
         Global { entries, total }
     }
@@ -166,7 +167,7 @@ impl Global {
     }
 
     pub fn place_token(&mut self, position: coord::Global, token: Token) {
-        let region : &mut Local = &mut self[position.get_region()];
+        let region: &mut Local = &mut self[position.get_region()];
         region.place_token(position.get_local(), token);
     }
 }
@@ -175,13 +176,13 @@ impl Index<coord::Local> for Global {
     type Output = Local;
 
     fn index(&self, region_coord: coord::Local) -> &Self::Output {
-        &self.entries[ region_coord.index() ]
+        &self.entries[region_coord.index()]
     }
 }
 
 impl IndexMut<coord::Local> for Global {
     fn index_mut(&mut self, region_coord: coord::Local) -> &mut Self::Output {
-        &mut self.entries[ region_coord.index() ]
+        &mut self.entries[region_coord.index()]
     }
 }
 
@@ -203,7 +204,7 @@ impl From<Player> for Token {
     fn from(player: Player) -> Self {
         match player {
             Player::Circle => Token::Circle,
-            Player::Cross => Token::Cross
+            Player::Cross => Token::Cross,
         }
     }
 }
@@ -213,7 +214,7 @@ impl From<Token> for Ownership {
         match player {
             Token::Circle => Ownership::Circle,
             Token::Cross => Ownership::Cross,
-            Token::Clear => Ownership::Undecided
+            Token::Clear => Ownership::Undecided,
         }
     }
 }
@@ -222,7 +223,7 @@ impl Player {
     pub fn other(self) -> Self {
         match self {
             Player::Circle => Player::Cross,
-            Player::Cross => Player::Circle
+            Player::Cross => Player::Circle,
         }
     }
 }

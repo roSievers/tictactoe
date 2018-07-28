@@ -3,27 +3,27 @@
 #![plugin(quickcheck_macros)]
 
 extern crate ggez;
-extern crate rand;
 extern crate quickcheck;
+extern crate rand;
 use ggez::event::MouseButton;
-use ggez::*;
 use ggez::graphics::Point2;
+use ggez::*;
 
-mod draw;
-mod coord;
 mod board;
+mod coord;
+mod draw;
 mod measure;
 
-use measure::MousePosition;
 use draw::GraphicsCache;
+use measure::MousePosition;
 
 pub struct MainState {
-    pub board_state : board::Global,
-    pub current_player : board::Player,
-    pub active_region : Option<coord::Local>,
-    pub active_hover : MousePosition,
-    pub mouse_down_position : MousePosition,
-    pub gfx : GraphicsCache,
+    pub board_state: board::Global,
+    pub current_player: board::Player,
+    pub active_region: Option<coord::Local>,
+    pub active_hover: MousePosition,
+    pub mouse_down_position: MousePosition,
+    pub gfx: GraphicsCache,
 }
 
 impl MainState {
@@ -32,11 +32,11 @@ impl MainState {
         let current_player = board::Player::Cross;
         let gfx = GraphicsCache::new(ctx)?;
         let s = MainState {
-            board_state, 
-            current_player, 
-            active_region : None, 
-            active_hover : MousePosition::Outside, 
-            mouse_down_position : MousePosition::Outside, 
+            board_state,
+            current_player,
+            active_region: None,
+            active_hover: MousePosition::Outside,
+            mouse_down_position: MousePosition::Outside,
             gfx,
         };
         Ok(s)
@@ -59,14 +59,14 @@ impl MainState {
     }
 
     fn on_place_token(&mut self, position: coord::Global) {
-        self.board_state.place_token(position, self.current_player.into());
+        self.board_state
+            .place_token(position, self.current_player.into());
         self.current_player = self.current_player.other();
         if self.board_state[position.get_local()].total == board::Ownership::Undecided {
             self.active_region = Some(position.get_local());
         } else {
             self.active_region = None;
         }
-
     }
 }
 
@@ -85,7 +85,13 @@ impl event::EventHandler for MainState {
         Ok(())
     }
 
-    fn mouse_button_down_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32 ) {
+    fn mouse_button_down_event(
+        &mut self,
+        _ctx: &mut Context,
+        _button: MouseButton,
+        _x: i32,
+        _y: i32,
+    ) {
         use ggez::event::MouseButton;
         if _button == MouseButton::Left {
             // Get click position in game terms and store it for the release
@@ -96,7 +102,13 @@ impl event::EventHandler for MainState {
         }
     }
 
-    fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32) {
+    fn mouse_button_up_event(
+        &mut self,
+        _ctx: &mut Context,
+        _button: MouseButton,
+        _x: i32,
+        _y: i32,
+    ) {
         let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.gfx.grid_offset;
         let click = self.gfx.measures.resolve_mouse_position(rel_mouse_position);
 
@@ -109,8 +121,8 @@ impl event::EventHandler for MainState {
         match click {
             MousePosition::Local(coord) => {
                 self.on_try_place_token(coord);
-            },
-            _ => ()
+            }
+            _ => (),
         }
 
         self.mouse_down_position = MousePosition::Outside;
@@ -122,8 +134,11 @@ impl event::EventHandler for MainState {
             Err(e) => panic!("Error while resizing: {:?}", e),
         }
 
-        graphics::set_screen_coordinates(ctx, ggez::graphics::Rect::new(0.0, 0.0, width as f32, height as f32)).unwrap();
-}
+        graphics::set_screen_coordinates(
+            ctx,
+            ggez::graphics::Rect::new(0.0, 0.0, width as f32, height as f32),
+        ).unwrap();
+    }
 }
 
 pub fn main() {

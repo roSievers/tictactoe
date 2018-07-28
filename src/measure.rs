@@ -1,5 +1,5 @@
-use ggez::graphics::{Vector2, Point2, Rect};
 use coord;
+use ggez::graphics::{Point2, Rect, Vector2};
 
 #[derive(Debug, Clone)]
 pub struct Measure {
@@ -20,21 +20,31 @@ pub enum MousePosition {
     Local(coord::Global),
     Region(coord::Local),
     BigHashtag,
-    Outside
+    Outside,
 }
 
 impl HashtagMeasure {
     pub fn new(block_size: f32, line_width: f32, inner_padding: f32) -> Self {
         let total_size = 3.0 * block_size + 2.0 * line_width;
-        HashtagMeasure { block_size, line_width, total_size, inner_padding }
+        HashtagMeasure {
+            block_size,
+            line_width,
+            total_size,
+            inner_padding,
+        }
     }
 
     pub fn from_size(total_size: f32, line_proportion: f32) -> Self {
-        assert!(line_proportion < 1.0 / 8.0 );
+        assert!(line_proportion < 1.0 / 8.0);
         let line_width = line_proportion * total_size;
         let inner_padding = line_width;
         let block_size = (total_size - 2.0 * line_width) / 3.0;
-        HashtagMeasure { block_size, line_width, total_size, inner_padding }
+        HashtagMeasure {
+            block_size,
+            line_width,
+            total_size,
+            inner_padding,
+        }
     }
 
     pub fn get_cell_rect(&self, coord: coord::Local) -> Rect {
@@ -43,15 +53,12 @@ impl HashtagMeasure {
             coord.get_x() as f32 * step_size,
             coord.get_y() as f32 * step_size,
             self.block_size,
-            self.block_size
+            self.block_size,
         )
     }
 
     pub fn get_offset(&self, coord: coord::Local) -> Vector2 {
-        Vector2::new(
-            self.get_cell_rect(coord).x,
-            self.get_cell_rect(coord).y
-        )
+        Vector2::new(self.get_cell_rect(coord).x, self.get_cell_rect(coord).y)
     }
 
     pub fn get_offset_with_padding(&self, coord: coord::Local) -> Vector2 {
@@ -64,22 +71,36 @@ impl HashtagMeasure {
 }
 
 impl Measure {
-    fn from_inner_measures(small_block: f32, small_line: f32, small_padding: f32, big_line: f32, big_padding: f32) -> Self {
+    fn from_inner_measures(
+        small_block: f32,
+        small_line: f32,
+        small_padding: f32,
+        big_line: f32,
+        big_padding: f32,
+    ) -> Self {
         let inner = HashtagMeasure::new(small_block, small_line, small_padding);
-        let outer = HashtagMeasure::new(inner.total_size + 2.0 * big_padding, big_line, big_padding);
+        let outer =
+            HashtagMeasure::new(inner.total_size + 2.0 * big_padding, big_line, big_padding);
         Measure { inner, outer }
     }
 
-    pub fn from_size(total_size: f32, outer_line_proportion: f32, inner_line_proportion: f32) -> Self {
+    pub fn from_size(
+        total_size: f32,
+        outer_line_proportion: f32,
+        inner_line_proportion: f32,
+    ) -> Self {
         let outer = HashtagMeasure::from_size(total_size, outer_line_proportion);
-        let inner = HashtagMeasure::from_size(outer.get_block_size_without_padding(), inner_line_proportion);
+        let inner = HashtagMeasure::from_size(
+            outer.get_block_size_without_padding(),
+            inner_line_proportion,
+        );
         Measure { inner, outer }
     }
 
     pub fn resolve_mouse_position(&self, pos: Point2) -> MousePosition {
         // Is the Point even inside the playing area?
         if !Rect::new(0.0, 0.0, self.outer.total_size, self.outer.total_size).contains(pos) {
-            return MousePosition::Outside
+            return MousePosition::Outside;
         }
 
         // Search for the mouse position
@@ -105,17 +126,17 @@ impl Measure {
 
 #[cfg(test)]
 mod tests {
-    use quickcheck::{Arbitrary, Gen};
     use measure::*;
+    use quickcheck::{Arbitrary, Gen};
 
     impl Arbitrary for Measure {
         fn arbitrary<G: Gen>(g: &mut G) -> Self {
             Measure::from_inner_measures(
-                g.gen() : f32 * 100.0 + 1.0, 
-                g.gen() : f32 * 100.0,
-                g.gen() : f32 * 100.0,
-                g.gen() : f32 * 100.0,
-                g.gen() : f32 * 100.0
+                g.gen(): f32 * 100.0 + 1.0,
+                g.gen(): f32 * 100.0,
+                g.gen(): f32 * 100.0,
+                g.gen(): f32 * 100.0,
+                g.gen(): f32 * 100.0,
             )
         }
     }
@@ -123,9 +144,9 @@ mod tests {
     impl Arbitrary for HashtagMeasure {
         fn arbitrary<G: Gen>(g: &mut G) -> Self {
             HashtagMeasure::new(
-                g.gen() : f32 * 100.0 + 1.0,
-                g.gen() : f32 * 100.0,
-                g.gen() : f32 * 100.0
+                g.gen(): f32 * 100.0 + 1.0,
+                g.gen(): f32 * 100.0,
+                g.gen(): f32 * 100.0,
             )
         }
     }
