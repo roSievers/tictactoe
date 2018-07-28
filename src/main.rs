@@ -94,6 +94,8 @@ impl event::EventHandler for MainState {
             // Get click position in game terms and store it for the release
             let rel_mouse_position = Point2::new(_x as f32, _y as f32) - self.gfx.grid_offset;
             self.mouse_down_position = self.gfx.get_measures().resolve_mouse_position(rel_mouse_position);
+        } else if _button == MouseButton::Right {
+            self.mouse_down_position = MousePosition::Outside;
         }
     }
 
